@@ -5,6 +5,10 @@ import { exampleRouter } from "./routes/example";
 dotenv.config();
 
 const app: Express = express();
+
+app.set('view engine', 'ejs');
+app.set('views', './src/views');
+
 const port = process.env.PORT;
 
 app.use("/", exampleRouter);
