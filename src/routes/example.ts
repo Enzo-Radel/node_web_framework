@@ -1,7 +1,8 @@
 import { Router } from "express";
 
-import { exampleView, exampleView2 } from "../controllers/exampleController";
-export const router = Router();
+import ExampleController from "../controllers/ExampleController";
 
-router.get("/", exampleView);
-router.get("/2", exampleView2);
+export const exampleRouter = Router();
+
+exampleRouter.get("/", ExampleController.exampleView);
+exampleRouter.get("/2", ExampleController.exampleView2);

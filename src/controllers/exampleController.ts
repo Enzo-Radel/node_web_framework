@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 
-export const exampleView = (req: Request, res: Response) => {
-    res.send('Hello World');
-}
+export default class ExampleController
+{
+    public static exampleView = (req: Request, res: Response) => {
+        res.send('Hello World');
+    }
 
-export const exampleView2 = (req: Request, res: Response) => {
-    res.send('Hello World 2');
+    public static exampleView2 = (req: Request, res: Response) => {
+        res.send('Hello World 2');
+    }
 }
