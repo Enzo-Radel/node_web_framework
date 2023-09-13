@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { createConnection } from "../database/config";
 
 export default class Model
 {
@@ -14,7 +15,7 @@ export default class Model
 
     // TODO Todos os métodos devem acessar o banco e retornar dados um uma informação de sucesso/falha
 
-    static insert(data: Record<string,any>)
+    static async insert(data: Record<string,any>)
     {
         let query = `INSERT INTO ${this.table} (id, `;
 
@@ -24,7 +25,9 @@ export default class Model
         query = query.slice(0,-2);
         query += ") ";
 
-        query += `VALUES (\'${this.generateId()}\', `;
+        let id = this.generateId()
+
+        query += `VALUES (\'${id}\', `;
 
         this.attributes.forEach(attribute => {
             if (typeof data[attribute] == "string")
@@ -36,7 +39,22 @@ export default class Model
         query = query.slice(0,-2);
         query += ");";
 
-        return query;
+        let con = createConnection();
+
+        let _this = this;
+
+        return new Promise((resolve: (value: Record<string,any>) => void, reject) => {
+            con.query(query, function (err: any, result: any) {
+                if (err)
+                    reject(err);
+                else {
+                    let modelData = _this.find(id);
+
+                    resolve(modelData);
+                }
+            });
+
+        });
     }
 
     static getAll()
@@ -46,11 +64,36 @@ export default class Model
         return query;
     }
 
-    static find(id: number)
+    static find(id: string)
     {
-        let query = `SELECT * FROM ${this.table} WHERE id=${id}`;
+        let query = `SELECT * FROM ${this.table} WHERE id=\'${id}\';`;
 
-        return query;
+        let con = createConnection();
+
+        let _this = this;
+
+        console.log(id)
+
+        return new Promise((resolve: (value: Record<string,any>) => void, reject) => {
+            con.query(query, function (err: any, result: any) {
+                if (err)
+                    reject(err);
+                else {
+                    let data = result[0]
+                    console.log(result)
+                    let modelData: Record<string, any> = {};
+
+                    modelData["id"] = data["id"]
+
+                    _this.attributes.forEach(attribute => {
+                        modelData[attribute] = data[attribute];
+                    });
+
+                    resolve(modelData);
+                }
+            });
+
+        });
     }
 
     static update(data: Record<string,any>)

@@ -10,7 +10,13 @@ export default class UserController
             "email": "enzo@radel",
             "password": 102030,
         };
-        
-        res.send(User.insert(data));
+
+        User.createUser(data)
+            .then(user => {
+                res.send(user);
+            })
+            .catch(error => {
+                res.send(error);
+            });
     }
 }
