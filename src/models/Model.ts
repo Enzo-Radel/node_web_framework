@@ -1,13 +1,22 @@
+import crypto from "crypto";
+
 export default class Model
 {
-    protected table : string|null = null;
-    protected attributes : Array<string> = [];
+    protected static table : string|null = null;
+    protected static attributes : Array<string> = [];
 
     data: Record<string,any> = {};
 
-    insert()
+    static generateId()
     {
-        let query = `INSERT INTO ${this.table} (`;
+        return crypto.randomUUID();
+    }
+
+    // TODO Todos os métodos devem acessar o banco e retornar dados um uma informação de sucesso/falha
+
+    static insert(data: Record<string,any>)
+    {
+        let query = `INSERT INTO ${this.table} (id, `;
 
         this.attributes.forEach(attribute => {
             query += attribute + ", ";
@@ -15,17 +24,57 @@ export default class Model
         query = query.slice(0,-2);
         query += ") ";
 
-        query += "VALUES (";
+        query += `VALUES (\'${this.generateId()}\', `;
 
         this.attributes.forEach(attribute => {
-            if (typeof this.data[attribute] == "string")
-                query += "\"" + this.data[attribute] + "\"" + ", ";
+            if (typeof data[attribute] == "string")
+                query += "\'" + data[attribute] + "\'" + ", ";
             else
-                query += this.data[attribute] + ",";
+                query += data[attribute] + ", ";
         });
 
         query = query.slice(0,-2);
         query += ");";
+
+        return query;
+    }
+
+    static getAll()
+    {
+        let query = `SELECT * FROM ${this.table};`
+
+        return query;
+    }
+
+    static find(id: number)
+    {
+        let query = `SELECT * FROM ${this.table} WHERE id=${id}`;
+
+        return query;
+    }
+
+    static update(data: Record<string,any>)
+    {
+        let query = `UPDATE ${this.table} SET `;
+
+        this.attributes.forEach(attribute => {
+            query += attribute + " = ";
+            if (typeof data[attribute] == "string")
+                query += "\'" + data[attribute] + "\'" + ", ";
+            else
+                query += data[attribute] + ", ";
+        });
+
+        query = query.slice(0,-2);
+
+        query += ` WHERE id=${data.id}`;
+
+        return query;
+    }
+
+    delete()
+    {
+        let query = `DELETE FROM ${Model.table} WHERE id=${this.data.id}`;
 
         return query;
     }

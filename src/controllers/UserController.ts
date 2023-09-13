@@ -5,13 +5,12 @@ import User from "../models/User";
 export default class UserController
 {
     public static test = (req: Request, res: Response) => {
-        let user = new User();
-        user.data = {
+        let data = {
             "name": "enzo",
             "email": "enzo@radel",
-            "password": 102030
+            "password": 102030,
         };
         
-        res.send(user.insert());
+        res.send(User.insert(data));
     }
 }
