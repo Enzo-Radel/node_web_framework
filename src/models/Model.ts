@@ -13,7 +13,7 @@ export default class Model
         return crypto.randomUUID();
     }
 
-    // TODO Todos os métodos devem acessar o banco e retornar dados um uma informação de sucesso/falha
+    // TODO Todos os métodos devem acessar o banco e retornar dados ou uma informação de sucesso/falha
 
     static async insert(data: Record<string,any>)
     {
@@ -44,7 +44,7 @@ export default class Model
         let _this = this;
 
         return new Promise((resolve: (value: Record<string,any>) => void, reject) => {
-            con.query(query, function (err: any, result: any) {
+            con.query(query, function (err: any) {
                 if (err)
                     reject(err);
                 else {
@@ -57,11 +57,37 @@ export default class Model
         });
     }
 
-    static getAll()
+    static async getAll()
     {
         let query = `SELECT * FROM ${this.table};`
 
-        return query;
+        let con = createConnection();
+
+        let _this = this;
+
+        return new Promise((resolve: (value: Array<Record<string,any>>) => void, reject) => {
+            con.query(query, function (err: any, result: any) {
+                if (err)
+                    reject(err);
+                else {
+                    let registers: Array<Record<string, any>> = [];
+                    let data: Record<string, any>;
+                    result.forEach((register: any) => {
+                        data = {};
+                        data["id"] = register["id"]
+
+                        _this.attributes.forEach(attribute => {
+                            data[attribute] = register[attribute];
+                        });
+
+                        registers.push(data);
+                    });
+
+                    resolve(registers);
+                }
+            });
+
+        });
     }
 
     static find(id: string)
@@ -72,15 +98,12 @@ export default class Model
 
         let _this = this;
 
-        console.log(id)
-
         return new Promise((resolve: (value: Record<string,any>) => void, reject) => {
             con.query(query, function (err: any, result: any) {
                 if (err)
                     reject(err);
                 else {
                     let data = result[0]
-                    console.log(result)
                     let modelData: Record<string, any> = {};
 
                     modelData["id"] = data["id"]

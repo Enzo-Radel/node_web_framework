@@ -16,5 +16,5 @@ app.use("/", exampleRouter);
 app.use("/user", userRouter);
 
 app.listen(port, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    console.log(`Server running on http://localhost:${port}`);
 });

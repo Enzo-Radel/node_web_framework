@@ -20,7 +20,7 @@ export default class User extends Model
 
     static async createUser(data: Record<string, any>)
     {
-        data = await User.insert(data);
+        data = await this.insert(data);
 
         let user = new User;
 
@@ -33,10 +33,27 @@ export default class User extends Model
     {
         let user = new User;
         
-        let data = await User.find(id);
+        let data = await this.find(id);
 
         user.setData(data);
 
         return user;
+    }
+
+    static async getAllUsers()
+    {
+        let registers = await this.getAll();
+
+        let users: Array<User> = [];
+
+        registers.forEach(register => {
+            let user = new User;
+
+            user.setData(register);
+
+            users.push(user);
+        });
+
+        return users;
     }
 }
