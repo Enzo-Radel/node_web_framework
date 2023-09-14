@@ -8,14 +8,14 @@ export default class Model
 
     data: Record<string,any> = {};
 
-    static generateId()
+    private static generateId()
     {
         return crypto.randomUUID();
     }
 
     // TODO Todos os métodos devem acessar o banco e retornar dados ou uma informação de sucesso/falha
 
-    static async insert(data: Record<string,any>)
+    protected static async insert(data: Record<string,any>)
     {
         let query = `INSERT INTO ${this.table} (id, `;
 
@@ -57,7 +57,7 @@ export default class Model
         });
     }
 
-    static async getAll()
+    protected static async getAll()
     {
         let query = `SELECT * FROM ${this.table};`
 
@@ -90,7 +90,7 @@ export default class Model
         });
     }
 
-    static find(id: string)
+    protected static find(id: string)
     {
         let query = `SELECT * FROM ${this.table} WHERE id=\'${id}\';`;
 
@@ -119,29 +119,55 @@ export default class Model
         });
     }
 
-    static update(data: Record<string,any>)
+    protected static async update(id: string, data: Record<string,any>)
     {
         let query = `UPDATE ${this.table} SET `;
 
-        this.attributes.forEach(attribute => {
-            query += attribute + " = ";
-            if (typeof data[attribute] == "string")
-                query += "\'" + data[attribute] + "\'" + ", ";
-            else
-                query += data[attribute] + ", ";
+        Object.keys(data).forEach(attribute => {
+            if(this.attributes.includes(attribute))
+            {
+                query += attribute + " = ";
+
+                if (typeof data[attribute] == "string")
+                    query += "\'" + data[attribute] + "\'" + ", ";
+                else
+                    query += data[attribute] + ", ";
+            }
         });
 
         query = query.slice(0,-2);
 
-        query += ` WHERE id=${data.id}`;
+        query += ` WHERE id=\'${id}\'`;
 
-        return query;
+        let con = createConnection();
+
+        return new Promise((resolve: (value: boolean) => void, reject) => {
+            con.query(query, function (err: any) {
+                if (err)
+                    reject(err);
+                else {
+                    resolve(true);
+                }
+            });
+
+        });
     }
 
-    delete()
+    protected static async delete(id: string)
     {
-        let query = `DELETE FROM ${Model.table} WHERE id=${this.data.id}`;
+        let query = `DELETE FROM ${this.table} WHERE id = \'${id}\'`;
 
-        return query;
+        let con = createConnection();
+
+        return new Promise((resolve: (value: boolean) => void, reject) => {
+            con.query(query, function (err: any) {
+                if (err)
+                    reject(err);
+                else {
+                    resolve(true);
+                }
+            });
+
+        });
     }
 }

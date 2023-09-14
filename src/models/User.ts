@@ -56,4 +56,14 @@ export default class User extends Model
 
         return users;
     }
+
+    async updateUser(data: Record<string, any>)
+    {
+        await User.update(this.data.id, data);
+    }
+
+    async deleteUser()
+    {
+        await User.delete(this.data.id);
+    }
 }
