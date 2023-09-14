@@ -10,6 +10,8 @@ const app: Express = express();
 app.set('view engine', 'ejs');
 app.set('views', './src/views');
 
+app.use(express.json())
+
 const port = process.env.PORT;
 
 app.use("/", exampleRouter);

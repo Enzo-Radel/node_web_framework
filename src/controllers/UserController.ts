@@ -17,11 +17,7 @@ export default class UserController
 
     static store = (req: Request, res: Response) =>
     {
-        let data = {
-            "name": "user",
-            "email": "user@teste",
-            "password": 102030,
-        }
+        let data = req.body
 
         User.createUser(data)
             .then(user => {
@@ -34,7 +30,7 @@ export default class UserController
 
     static show = (req: Request, res: Response) =>
     {
-        User.findUser("")
+        User.findUser(req.params.id)
             .then(user => {
                 res.send(user);
             })
@@ -45,13 +41,9 @@ export default class UserController
 
     static update = (req: Request, res: Response) =>
     {
-        let data = {
-            "name": "user",
-            "email": "user@teste",
-            "password": 102030,
-        }
+        let data = req.body
         
-        User.findUser("")
+        User.findUser(req.params.id)
             .then(user => {
                 user.updateUser(data)
                     .then(response => {
@@ -68,7 +60,7 @@ export default class UserController
 
     static delete = (req: Request, res: Response) =>
     {
-        User.findUser("")
+        User.findUser(req.params.id)
             .then(user => {
                 user.deleteUser()
                     .then(response => {

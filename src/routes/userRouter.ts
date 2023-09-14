@@ -5,7 +5,7 @@ import UserController from "../controllers/UserController";
 export const userRouter = Router();
 
 userRouter.get("/", UserController.index);
-userRouter.get("/store", UserController.store);
-userRouter.get("/show", UserController.show);
-userRouter.get("/update", UserController.update);
-userRouter.get("/delete", UserController.delete);
+userRouter.post("/", UserController.store);
+userRouter.get("/:id", UserController.show);
+userRouter.put("/:id", UserController.update);
+userRouter.delete("/:id", UserController.delete);
