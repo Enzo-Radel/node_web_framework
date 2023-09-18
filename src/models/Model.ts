@@ -3,8 +3,8 @@ import { createConnection } from "../database/config";
 
 export default class Model
 {
-    protected static table : string|null = null;
-    protected static attributes : Array<string> = [];
+    protected table : string|null = null;
+    protected attributes : Array<string> = [];
 
     data: Record<string,any> = {};
 
@@ -13,13 +13,23 @@ export default class Model
         return crypto.randomUUID();
     }
 
-    // TODO Todos os métodos devem acessar o banco e retornar dados ou uma informação de sucesso/falha
-
-    protected static async insert(data: Record<string,any>)
+    protected setData(data: Record<string, any>)
     {
-        let query = `INSERT INTO ${this.table} (id, `;
+        this.data.id = data.id;
 
         this.attributes.forEach(attribute => {
+            this.data[attribute] = data[attribute];
+        });
+    }
+
+    // TODO Todos os métodos devem acessar o banco e retornar dados ou uma informação de sucesso/falha
+
+    public static async create(data: Record<string,any>)
+    {
+        var instance = new(this);
+        let query = `INSERT INTO ${instance.table} (id, `;
+
+        instance.attributes.forEach(attribute => {
             query += attribute + ", ";
         });
         query = query.slice(0,-2);
@@ -29,7 +39,7 @@ export default class Model
 
         query += `VALUES (\'${id}\', `;
 
-        this.attributes.forEach(attribute => {
+        instance.attributes.forEach(attribute => {
             if (typeof data[attribute] == "string")
                 query += "\'" + data[attribute] + "\'" + ", ";
             else
@@ -50,37 +60,40 @@ export default class Model
                 else {
                     let modelData = _this.find(id);
 
-                    resolve(modelData);
+                    instance.setData(modelData);
+
+                    resolve(instance);
                 }
             });
 
         });
     }
 
-    protected static async getAll()
+    public static async getAll()
     {
-        let query = `SELECT * FROM ${this.table};`
+        var instance = new(this);
+        let query = `SELECT * FROM ${instance.table};`
 
         let con = createConnection();
-
-        let _this = this;
 
         return new Promise((resolve: (value: Array<Record<string,any>>) => void, reject) => {
             con.query(query, function (err: any, result: any) {
                 if (err)
                     reject(err);
                 else {
-                    let registers: Array<Record<string, any>> = [];
+                    let registers: Array<Model> = [];
                     let data: Record<string, any>;
                     result.forEach((register: any) => {
                         data = {};
                         data["id"] = register["id"]
 
-                        _this.attributes.forEach(attribute => {
+                        instance.attributes.forEach(attribute => {
                             data[attribute] = register[attribute];
                         });
 
-                        registers.push(data);
+                        instance.setData(data);
+
+                        registers.push(instance);
                     });
 
                     resolve(registers);
@@ -90,15 +103,14 @@ export default class Model
         });
     }
 
-    protected static find(id: string)
+    public static find(id: string)
     {
-        let query = `SELECT * FROM ${this.table} WHERE id=\'${id}\';`;
+        var instance = new(this);
+        let query = `SELECT * FROM ${instance.table} WHERE id=\'${id}\';`;
 
         let con = createConnection();
 
-        let _this = this;
-
-        return new Promise((resolve: (value: Record<string,any>) => void, reject) => {
+        return new Promise((resolve, reject) => {
             con.query(query, function (err: any, result: any) {
                 if (err)
                     reject(err);
@@ -108,18 +120,20 @@ export default class Model
 
                     modelData["id"] = data["id"]
 
-                    _this.attributes.forEach(attribute => {
+                    instance.attributes.forEach(attribute => {
                         modelData[attribute] = data[attribute];
                     });
 
-                    resolve(modelData);
+                    instance.setData(modelData);
+
+                    resolve(instance);
                 }
             });
 
         });
     }
 
-    protected static async update(id: string, data: Record<string,any>)
+    public async update(id: string, data: Record<string,any>)
     {
         let query = `UPDATE ${this.table} SET `;
 
@@ -153,7 +167,7 @@ export default class Model
         });
     }
 
-    protected static async delete(id: string)
+    public async delete(id: string)
     {
         let query = `DELETE FROM ${this.table} WHERE id = \'${id}\'`;
 
