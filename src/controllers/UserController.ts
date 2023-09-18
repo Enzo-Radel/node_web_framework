@@ -30,13 +30,17 @@ export default class UserController
 
     static show = (req: Request, res: Response) =>
     {
-        User.find(req.params.id)
+        try {
+            User.find(req.params.id)
             .then(user => {
                 res.send(user);
             })
             .catch(error => {
-                res.send(error);
+                res.send(error)
             });
+        } catch (error) {
+            
+        }
     }
 
     static update = (req: Request, res: Response) =>

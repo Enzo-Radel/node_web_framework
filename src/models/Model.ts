@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { createConnection } from "../database/config";
+import RegisterNotFoundError from "../Errors/RegisterNotFound";
 
 export default class Model
 {
@@ -113,10 +114,14 @@ export default class Model
                 let model = new (this);
 
                 if (err)
-                    reject(model);
+                    throw new RegisterNotFoundError("Registro não encontrado");
                 else {
                     let data = result[0]
                     let modelData: Record<string, any> = {};
+
+                    if (data == undefined) {
+                        throw new RegisterNotFoundError("Registro não encontrado");
+                    }
 
                     modelData["id"] = data["id"]
 
@@ -126,10 +131,10 @@ export default class Model
 
                     model.setData(modelData);
 
-                    resolve(model);
+                    resolve(model)
+                    
                 }
-            });
-
+            });    
         });
     }
 
