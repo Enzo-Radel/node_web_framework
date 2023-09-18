@@ -22,11 +22,45 @@ export default class Model
         });
     }
 
-    // TODO Todos os métodos devem acessar o banco e retornar dados ou uma informação de sucesso/falha
+    public static async getAll()
+    {
+        let instance = new(this);
+        let query = `SELECT * FROM ${instance.table};`
+
+        let con = createConnection();
+
+        return new Promise((resolve: (value: Array<Model>) => void, reject) => {
+            con.query(query, (err: any, result: any) => {
+                let registers: Array<Model> = [];
+                if (err)
+                    reject(registers);
+                else {
+                    let data: Record<string, any>;
+
+                    result.forEach((register: any) => {
+                        let model = new (this);
+                        data = {};
+                        data["id"] = register["id"]
+
+                        instance.attributes.forEach(attribute => {
+                            data[attribute] = register[attribute];
+                        });
+
+                        model.setData(data);
+
+                        registers.push(model);
+                    });
+
+                    resolve(registers);
+                }
+            });
+
+        });
+    }
 
     public static async create(data: Record<string,any>)
     {
-        var instance = new(this);
+        let instance = new(this);
         let query = `INSERT INTO ${instance.table} (id, `;
 
         instance.attributes.forEach(attribute => {
@@ -51,52 +85,16 @@ export default class Model
 
         let con = createConnection();
 
-        let _this = this;
+        return new Promise((resolve: (value: Model) => void, reject) => {
+            con.query(query, async (err: any) => {
+                let model = new (this);
 
-        return new Promise((resolve: (value: Record<string,any>) => void, reject) => {
-            con.query(query, function (err: any) {
                 if (err)
                     reject(err);
                 else {
-                    let modelData = _this.find(id);
+                    model = await this.find(id);
 
-                    instance.setData(modelData);
-
-                    resolve(instance);
-                }
-            });
-
-        });
-    }
-
-    public static async getAll()
-    {
-        var instance = new(this);
-        let query = `SELECT * FROM ${instance.table};`
-
-        let con = createConnection();
-
-        return new Promise((resolve: (value: Array<Record<string,any>>) => void, reject) => {
-            con.query(query, function (err: any, result: any) {
-                if (err)
-                    reject(err);
-                else {
-                    let registers: Array<Model> = [];
-                    let data: Record<string, any>;
-                    result.forEach((register: any) => {
-                        data = {};
-                        data["id"] = register["id"]
-
-                        instance.attributes.forEach(attribute => {
-                            data[attribute] = register[attribute];
-                        });
-
-                        instance.setData(data);
-
-                        registers.push(instance);
-                    });
-
-                    resolve(registers);
+                    resolve(model);
                 }
             });
 
@@ -105,15 +103,17 @@ export default class Model
 
     public static find(id: string)
     {
-        var instance = new(this);
+        let instance = new(this);
         let query = `SELECT * FROM ${instance.table} WHERE id=\'${id}\';`;
 
         let con = createConnection();
 
-        return new Promise((resolve, reject) => {
-            con.query(query, function (err: any, result: any) {
+        return new Promise((resolve: (value: Model) => void, reject: (value: Model) => void) => {
+            con.query(query, (err: any, result: any) => {
+                let model = new (this);
+
                 if (err)
-                    reject(err);
+                    reject(model);
                 else {
                     let data = result[0]
                     let modelData: Record<string, any> = {};
@@ -124,16 +124,16 @@ export default class Model
                         modelData[attribute] = data[attribute];
                     });
 
-                    instance.setData(modelData);
+                    model.setData(modelData);
 
-                    resolve(instance);
+                    resolve(model);
                 }
             });
 
         });
     }
 
-    public async update(id: string, data: Record<string,any>)
+    public async update(data: Record<string,any>)
     {
         let query = `UPDATE ${this.table} SET `;
 
@@ -147,18 +147,18 @@ export default class Model
                 else
                     query += data[attribute] + ", ";
             }
-        });
+        })
 
         query = query.slice(0,-2);
 
-        query += ` WHERE id=\'${id}\'`;
+        query += ` WHERE id=\'${this.data.id}\'`;
 
         let con = createConnection();
 
         return new Promise((resolve: (value: boolean) => void, reject) => {
-            con.query(query, function (err: any) {
+            con.query(query, (err: any) => {
                 if (err)
-                    reject(err);
+                    reject(false);
                 else {
                     resolve(true);
                 }
@@ -167,16 +167,16 @@ export default class Model
         });
     }
 
-    public async delete(id: string)
+    public async delete()
     {
-        let query = `DELETE FROM ${this.table} WHERE id = \'${id}\'`;
+        let query = `DELETE FROM ${this.table} WHERE id = \'${this.data.id}\'`;
 
         let con = createConnection();
 
         return new Promise((resolve: (value: boolean) => void, reject) => {
-            con.query(query, function (err: any) {
+            con.query(query, (err: any) => {
                 if (err)
-                    reject(err);
+                    reject(false);
                 else {
                     resolve(true);
                 }

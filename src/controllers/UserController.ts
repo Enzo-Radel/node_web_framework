@@ -15,63 +15,63 @@ export default class UserController
             });
     }
 
-    // static store = (req: Request, res: Response) =>
-    // {
-    //     let data = req.body
+    static store = (req: Request, res: Response) =>
+    {
+        let data = req.body
 
-    //     User.create(data)
-    //         .then(user => {
-    //             res.send(user);
-    //         })
-    //         .catch(error => {
-    //             res.send(error);
-    //         });
-    // }
+        User.create(data)
+            .then(user => {
+                res.send(user);
+            })
+            .catch(error => {
+                res.send(error);
+            });
+    }
 
-    // static show = (req: Request, res: Response) =>
-    // {
-    //     User.findUser(req.params.id)
-    //         .then(user => {
-    //             res.send(user);
-    //         })
-    //         .catch(error => {
-    //             res.send(error);
-    //         });
-    // }
+    static show = (req: Request, res: Response) =>
+    {
+        User.find(req.params.id)
+            .then(user => {
+                res.send(user);
+            })
+            .catch(error => {
+                res.send(error);
+            });
+    }
 
-    // static update = (req: Request, res: Response) =>
-    // {
-    //     let data = req.body
+    static update = (req: Request, res: Response) =>
+    {
+        let data = req.body
         
-    //     User.findUser(req.params.id)
-    //         .then(user => {
-    //             user.updateUser(data)
-    //                 .then(response => {
-    //                     res.send(response);
-    //                 })
-    //                 .catch(error => {
-    //                     res.send(error);
-    //                 });
-    //         })
-    //         .catch(error => {
-    //             res.send(error);
-    //         });
-    // }
+        User.find(req.params.id)
+            .then(user => {
+                user.update(data)
+                    .then(response => {
+                        res.send(response);
+                    })
+                    .catch(error => {
+                        res.send(error);
+                    });
+            })
+            .catch(error => {
+                res.send(error);
+            });
+    }
 
-    // static delete = (req: Request, res: Response) =>
-    // {
-    //     User.findUser(req.params.id)
-    //         .then(user => {
-    //             user.deleteUser()
-    //                 .then(response => {
-    //                     res.send(response);
-    //                 })
-    //                 .catch(error => {
-    //                     res.send(error);
-    //                 });
-    //         })
-    //         .catch(error => {
-    //             res.send(error);
-    //         });
-    // }
+    static delete = (req: Request, res: Response) =>
+    {
+        User.find(req.params.id)
+            .then(user => {
+                user.delete()
+                    .then(response => {
+                        res.send(response);
+                    })
+                    .catch(error => {
+                        res.send(error);
+                    });
+            })
+            .catch(error => {
+                res.send(error);
+            });
+    }
 }
